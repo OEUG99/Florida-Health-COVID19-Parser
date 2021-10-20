@@ -9,5 +9,5 @@ setup(
     author='O. Eugenio',
     author_email='iam@oweneugenio.com',
     description='A parser that extracts the Statistics from Florida\'s Department of Health\'s COVID-19 Weekly '
-                'Situation Report. '
+                'Situation Report.'
 )
