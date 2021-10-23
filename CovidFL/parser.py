@@ -7,8 +7,8 @@ import urllib.error
 
 class Parser:
 
-    def __init__(self):
-        self.data_url = 'http://ww11.doh.state.fl.us/comm/_partners/covid19_report_archive/covid19-data/covid19_data_latest.pdf'
+    def __init__(self, url='http://ww11.doh.state.fl.us/comm/_partners/covid19_report_archive/covid19-data/covid19_data_latest.pdf'):
+        self.data_url = url
 
     def __open_url(self, url):
         """ Create a byte stream for the provided URL.
