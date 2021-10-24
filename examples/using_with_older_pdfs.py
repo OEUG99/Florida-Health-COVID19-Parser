@@ -1,4 +1,5 @@
 import CovidFL
+from CovidFL import fetch_data_urls
 
 
 def main():
@@ -8,8 +9,10 @@ def main():
             implementation, use at your own risk.
     """
 
-    # Using a previous week's PDF:
-    custom_url = 'http://ww11.doh.state.fl.us/comm/_partners/covid19_report_archive/covid19-data/covid19_data_20211022.pdf'
+    # Using a previous week's PDF ** index 0 is the current week, index 1 is one week ago,
+    # index n is n weeks ago.
+    custom_url = fetch_data_urls()[1]
+    print(custom_url)
 
     # Creating a parser object with keyword argument url
     parser = CovidFL.Parser(url=custom_url)
