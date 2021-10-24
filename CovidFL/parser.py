@@ -3,6 +3,25 @@ import PyPDF2
 from urllib.request import urlopen
 from io import BytesIO
 import urllib.error
+import bs4
+import requests
+import lxml
+
+
+def fetch_data_urls():
+    url = 'http://ww11.doh.state.fl.us/comm/_partners/covid19_report_archive/covid19-data/'
+    r = requests.get(url)
+
+    soup = bs4.BeautifulSoup(r.text, 'lxml')
+    tags = soup.find_all("a")[5:]
+
+    links = []
+    for x in tags:
+        links.append('http://ww11.doh.state.fl.us/comm/_partners/covid19_report_archive/covid19-data/' + x.get('href'))
+
+    links.reverse()
+
+    return links
 
 
 class Parser:
@@ -40,6 +59,7 @@ class Parser:
             corrected_array.append(int(x.replace(',', '')))
 
         return corrected_array
+
 
     def fetch_table_data(self):
         """ Fetches the latest weekly COVID-19 data for Florida.
