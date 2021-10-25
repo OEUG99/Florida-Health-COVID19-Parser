@@ -1,5 +1,6 @@
+import time
 import urllib
-import PyPDF2
+import PyPDF4
 from urllib.request import urlopen
 from io import BytesIO
 import urllib.error
@@ -8,7 +9,8 @@ import requests
 import lxml
 
 
-def fetch_data_urls():
+
+def fetch_data_urls(reverse=True):
     url = 'http://ww11.doh.state.fl.us/comm/_partners/covid19_report_archive/covid19-data/'
     r = requests.get(url)
 
@@ -19,7 +21,8 @@ def fetch_data_urls():
     for x in tags:
         links.append('http://ww11.doh.state.fl.us/comm/_partners/covid19_report_archive/covid19-data/' + x.get('href'))
 
-    links.reverse()
+    if reverse is True:
+        links.reverse()
 
     return links
 
@@ -101,7 +104,9 @@ class Parser:
         file = self.__open_url(self.data_url)
 
         # Creating a PDF reader object:
-        pdfReader = PyPDF2.PdfFileReader(file)
+        pdfReader = PyPDF4.PdfFileReader(file)
+
+
 
         # Creating a page object based off the first page, then extracting the raw text:
         pageObj = pdfReader.getPage(0)
@@ -153,6 +158,7 @@ class Parser:
 
         # Creating a page object based off the first page, then extracting the raw text:
         pageObj = pdfReader.getPage(page_number - 1)
+        print(pageObj.extractText())
         raw_text = pageObj.extractText().split('\n')  # Splitting our string at every new line into an array of strings.
 
         # Filtering out whitespace from our result
@@ -174,7 +180,10 @@ class Parser:
         file = self.__open_url(self.data_url)
 
         # Creating a PDF reader object:
-        pdfReader = PyPDF2.PdfFileReader(file)
+        pdfReader = PyPDF4.PdfFileReader(file)
+
+        info = pdfReader.getDocumentInfo()
+
 
         # Fetching the raw text from each page and combining it into one array:
         raw_text = self.__parse_county_page(4, pdfReader) \
@@ -184,7 +193,7 @@ class Parser:
         results = {}
 
         for x, y in enumerate(raw_text):
-            if x % 10 == 0:
+            if x % 10 == 0: # Every 10 elements is new county info
                 results[y] = {}
                 results[y]['2021-population'] = raw_text[x + 1]
                 results[y]['cumulative'] = {'people-vaccinated': raw_text[x + 2],
@@ -197,8 +206,14 @@ class Parser:
                                                'new-case-positivity': raw_text[x + 8],
                                                'cases-per-100,000-population': raw_text[x + 9]
                                                }
+            #time.sleep(6) # sleep for 6 seconds so we don't flood Florida's DOH's servers
 
         # Lastly, we close the PDF object:
         file.close()
 
         return results
+
+    def fetch_all_data(self):
+        county_data = self.fetch_county_data()
+        table_data = self.fetch_table_data()
+        return dict(county_data, **table_data)
